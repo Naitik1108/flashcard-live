@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-black text-white p-6">
@@ -6,21 +8,33 @@ export default function DashboardPage() {
       </h1>
 
       <div className="grid gap-4">
-        <div className="p-4 rounded-xl border border-zinc-800">
+        <Link
+          href="/decks/new"
+          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
+        >
           Create Deck
-        </div>
+        </Link>
 
-        <div className="p-4 rounded-xl border border-zinc-800">
+        <Link
+          href="/decks"
+          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
+        >
           My Decks
-        </div>
+        </Link>
 
-        <div className="p-4 rounded-xl border border-zinc-800">
+        <Link
+          href="/public-decks"
+          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
+        >
           Public Decks
-        </div>
+        </Link>
 
-        <div className="p-4 rounded-xl border border-zinc-800">
+        <Link
+          href="/history"
+          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
+        >
           Study History
-        </div>
+        </Link>
       </div>
     </main>
   );
