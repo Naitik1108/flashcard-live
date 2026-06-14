@@ -37,17 +37,17 @@ export default function DeckDetailsPage() {
       />
 
       <div className="mt-8 space-y-4">
-        {decks.map((deck) => (
+        {decks.map((card) => (
   <Link
     href={`/decks/${deck.id}`}
-    key={deck.id}
+    key={card.id}
   >
     <div className="border border-zinc-800 p-4 rounded-xl">
       <h2 className="font-bold">
-        {deck.title}
+        {card.question}
       </h2>
 
-      <p>{deck.description}</p>
+      <p>{card.answer}</p>
     </div>
   </Link>
 ))}
