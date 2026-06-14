@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getDeckCards } from "@/lib/cards";
@@ -37,19 +36,17 @@ export default function DeckDetailsPage() {
       />
 
       <div className="mt-8 space-y-4">
-        {decks.map((card) => (
-  <Link
-    href={`/decks/${deck.id}`}
+        {cards.map((card) => (
+  <div
     key={card.id}
+    className="border border-zinc-800 p-4 rounded-xl"
   >
-    <div className="border border-zinc-800 p-4 rounded-xl">
-      <h2 className="font-bold">
-        {card.question}
-      </h2>
+    <h3 className="font-bold">
+      {card.question}
+    </h3>
 
-      <p>{card.answer}</p>
-    </div>
-  </Link>
+    <p>{card.answer}</p>
+  </div>
 ))}
       </div>
     </main>
