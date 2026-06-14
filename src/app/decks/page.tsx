@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useUser } from "@/hooks/useUser";
-import { getMyDecks } from "@/lib/decks";
+import { useUser } from "../../hooks/useUser";
+import { getMyDecks } from "../../lib/decks";
 
 export default function DecksPage() {
   const user = useUser();
