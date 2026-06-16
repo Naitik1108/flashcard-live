@@ -6,6 +6,13 @@ import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/lib/supabase";
 
 import {
+  revealCard,
+  nextCard,
+  isSessionComplete,
+  completeSession,
+} from "@/lib/sessionEngine";
+
+import {
   getRoomByCode,
   setGuestReady,
   revealAnswer,
