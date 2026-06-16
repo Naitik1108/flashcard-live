@@ -63,3 +63,31 @@ a:visited {
 a:hover {
   opacity: 0.8;
 }
+.text-title {
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.text-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+.text-card-title {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.text-card-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
