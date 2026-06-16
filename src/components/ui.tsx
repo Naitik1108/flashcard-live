@@ -34,11 +34,18 @@ export function Button({
   children,
   onClick,
   variant = "primary",
-}: any) {
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: "primary" | "secondary" | "danger";
+}) {
   const base =
     "px-4 py-3 rounded-xl font-medium transition w-full";
 
-  const styles = {
+  const styles: Record<
+    "primary" | "secondary" | "danger",
+    string
+  > = {
     primary: "bg-white text-black hover:opacity-90",
     secondary:
       "border border-zinc-700 text-white hover:border-zinc-500",
