@@ -1,119 +1,105 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
+import { createRoom } from "@/lib/rooms";
 import { getMyDecks } from "@/lib/decks";
 
 export default function CreateRoomPage() {
-  const { user, loading } =
-  useUser();
+  const router = useRouter();
+  const { user } = useUser();
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-black       text-white p-6">
-        Loading...
-      </main>
-    );
+  const [decks, setDecks] = useState<any[]>([]);
+  const [selectedDeck, setSelectedDeck] =
+    useState<string>("");
+
+  const [loading, setLoading] = useState(false);
+
+  // load decks
+  async function loadDecks() {
+    if (!user) return;
+    const { data } = await getMyDecks(user.id);
+    setDecks(data || []);
   }
 
-  const [decks, setDecks] =
-    useState<any[]>([]);
-
-  const [selectedDeck, setSelectedDeck] =
-    useState("");
-
-  const [roomCode, setRoomCode] =
-    useState("");
-
-  useEffect(() => {
-    async function loadDecks() {
-      if (!user) return;
-
-      const { data } =
-        await getMyDecks(user.id);
-
-      setDecks(data || []);
-    }
-
+  useState(() => {
     loadDecks();
   }, [user]);
 
-  function generateRoom() {
-    const code = Math.random()
+  function generateCode() {
+    return Math.random()
       .toString(36)
       .substring(2, 8)
       .toUpperCase();
+  }
 
-    setRoomCode(code);
+  async function handleCreateRoom() {
+    if (!user) return;
+
+    if (!selectedDeck) {
+      alert("Select a deck");
+      return;
+    }
+
+    const code = generateCode();
+
+    setLoading(true);
+
+    const { data, error } = await createRoom(
+      selectedDeck,
+      user.id,
+      code
+    );
+
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    router.push(`/rooms/${data.code}`);
   }
 
   return (
     <main className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">
-          Create Room
-        </h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Create Room
+      </h1>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <label className="block mb-3 text-zinc-400">
+      <div className="space-y-4">
+        <div>
+          <p className="text-zinc-400 mb-2">
             Select Deck
-          </label>
+          </p>
 
           <select
             value={selectedDeck}
             onChange={(e) =>
-              setSelectedDeck(
-                e.target.value
-              )
+              setSelectedDeck(e.target.value)
             }
-            className="w-full rounded-xl border border-zinc-800 bg-black p-3 mb-6"
+            className="w-full p-3 bg-zinc-900 rounded"
           >
-            <option value="">
-              Choose a deck
-            </option>
+            <option value="">Choose deck</option>
 
-            {decks.map((deck) => (
-              <option
-                key={deck.id}
-                value={deck.id}
-              >
-                {deck.title}
+            {decks.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.title || "Untitled Deck"}
               </option>
             ))}
           </select>
-
-          <button
-            onClick={generateRoom}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3"
-          >
-            Generate Room
-          </button>
-
-          {roomCode && (
-            <div className="mt-8 rounded-xl border border-zinc-800 p-5">
-              <p className="text-zinc-500 mb-2">
-                Room Code
-              </p>
-
-              <div className="text-3xl font-bold">
-                {roomCode}
-              </div>
-
-              <p className="text-zinc-500 mt-4">
-                Share this code with the
-                student.
-              </p>
-
-              <Link
-                href={`/rooms/${roomCode}`}
-                className="block mt-6 rounded-xl border border-zinc-800 p-3 text-center"
-              >
-                Enter Room
-              </Link>
-            </div>
-          )}
         </div>
+
+        <button
+          onClick={handleCreateRoom}
+          disabled={loading}
+          className="w-full bg-blue-600 p-3 rounded"
+        >
+          {loading
+            ? "Creating..."
+            : "Generate Room"}
+        </button>
       </div>
     </main>
   );
