@@ -9,6 +9,14 @@ export default function CreateRoomPage() {
   const { user, loading } =
   useUser();
 
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black       text-white p-6">
+        Loading...
+      </main>
+    );
+  }
+
   const [decks, setDecks] =
     useState<any[]>([]);
 
