@@ -1,65 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useUser } from "@/hooks/useUser";
-import { createRoom } from "@/lib/rooms";
 import { getMyDecks } from "@/lib/decks";
+import { supabase } from "@/lib/supabase";
 
 export default function CreateRoomPage() {
-  const router = useRouter();
-  const 
+  const { user } = useUser();
 
   const [decks, setDecks] = useState<any[]>([]);
   const [selectedDeck, setSelectedDeck] =
-    useState<string>("");
+    useState("");
 
   const [loading, setLoading] = useState(false);
 
-  // load decks
-  async function loadDecks() {
+  useEffect(() => {
     if (!user) return;
-    const { data } = await getMyDecks(user.id);
-    setDecks(data || []);
-  }
 
-  useState(() => {
+    async function loadDecks() {
+      const { data } = await getMyDecks(user.id);
+      setDecks(data || []);
+    }
+
     loadDecks();
   }, [user]);
 
-  function generateCode() {
-    return Math.random()
+  async function createRoom() {
+    if (!selectedDeck) return;
+
+    const code = Math.random()
       .toString(36)
       .substring(2, 8)
       .toUpperCase();
-  }
 
-  async function handleCreateRoom() {
-    if (!user) return;
-
-    if (!selectedDeck) {
-      alert("Select a deck");
-      return;
-    }
-
-    const code = generateCode();
-
-    setLoading(true);
-
-    const { data, error } = await createRoom(
-      selectedDeck,
-      user.id,
-      code
-    );
-
-    setLoading(false);
+    const { error } = await supabase.from("rooms").insert({
+      deck_id: selectedDeck,
+      code,
+      host_id: user.id,
+      status: "waiting",
+      current_card_index: 0,
+      revealed: false,
+    });
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    router.push(`/rooms/${data.code}`);
+    alert(`Room created: ${code}`);
   }
 
   return (
@@ -69,38 +57,27 @@ export default function CreateRoomPage() {
       </h1>
 
       <div className="space-y-4">
-        <div>
-          <p className="text-zinc-400 mb-2">
-            Select Deck
-          </p>
-
-          <select
-            value={selectedDeck}
-            onChange={(e) =>
-              setSelectedDeck(e.target.value)
-            }
-            className="w-full p-3 bg-zinc-900 rounded"
+        {decks.map((d) => (
+          <div
+            key={d.id}
+            onClick={() => setSelectedDeck(d.id)}
+            className={`p-4 border rounded-xl cursor-pointer ${
+              selectedDeck === d.id
+                ? "border-blue-500"
+                : "border-zinc-800"
+            }`}
           >
-            <option value="">Choose deck</option>
-
-            {decks.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.title || "Untitled Deck"}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={handleCreateRoom}
-          disabled={loading}
-          className="w-full bg-blue-600 p-3 rounded"
-        >
-          {loading
-            ? "Creating..."
-            : "Generate Room"}
-        </button>
+            {d.title}
+          </div>
+        ))}
       </div>
+
+      <button
+        onClick={createRoom}
+        className="mt-6 bg-blue-600 px-4 py-2 rounded"
+      >
+        Generate Room
+      </button>
     </main>
   );
 }
