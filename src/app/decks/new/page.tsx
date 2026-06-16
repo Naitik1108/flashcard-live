@@ -6,7 +6,8 @@ import { createDeck } from "@/lib/decks";
 import { createCard } from "@/lib/cards";
 
 export default function NewDeckPage() {
-  const user = useUser();
+  const { user, loading } =
+  useUser();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] =
