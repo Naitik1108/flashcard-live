@@ -8,9 +8,7 @@ import { getMyDecks } from "@/lib/decks";
 
 export default function CreateRoomPage() {
   const router = useRouter();
-  const { user, loading } = useUser();
-
-user?.id
+  const 
 
   const [decks, setDecks] = useState<any[]>([]);
   const [selectedDeck, setSelectedDeck] =
