@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "@/lib/auth/auth";
 
 export default function LoginPage() {
@@ -24,8 +25,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white flex items-center justify-center">
-      <div className="w-full max-w-md p-6">
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+      <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
         <h1 className="text-3xl font-bold mb-6">
           Login
         </h1>
@@ -36,7 +37,7 @@ export default function LoginPage() {
             setEmail(e.target.value)
           }
           placeholder="Email"
-          className="w-full p-3 mb-4 rounded bg-zinc-900"
+          className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
         />
 
         <input
@@ -46,15 +47,25 @@ export default function LoginPage() {
           }
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-4 rounded bg-zinc-900"
+          className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
         />
 
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-500 p-3 rounded"
+          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 font-medium"
         >
           Login
         </button>
+
+        <div className="mt-6 flex justify-between text-sm text-zinc-500">
+          <Link href="/signup">
+            Create Account
+          </Link>
+
+          <Link href="/forgot-password">
+            Forgot Password
+          </Link>
+        </div>
       </div>
     </main>
   );
