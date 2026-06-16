@@ -1,50 +1,45 @@
+"use client";
+
 import Link from "next/link";
+import { Page, Header, Card, CardTitle, CardDesc } from "@/components/ui";
 
 export default function DashboardPage() {
-  const items = [
-    {
-      title: "Create Deck",
-      href: "/decks/new",
-    },
-    {
-      title: "Created Decks",
-      href: "/decks",
-    },
-    {
-      title: "Room",
-      href: "/rooms/create",
-    },
-    {
-      title: "Solo Practice",
-      href: "/solo",
-    },
-    {
-      title: "Profile",
-      href: "/profile",
-    },
-    {
-      title: "History",
-      href: "/history",
-    },
-  ];
-
   return (
-    <main className="min-h-screen bg-black text-white p-6">
-      <h1 className="text-4xl font-bold mb-8">
-        Dashboard
-      </h1>
+    <Page>
+      <Header
+        title="FlashCard Live"
+        subtitle="1-on-1 real-time learning system"
+      />
 
-      <div className="grid gap-4">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-zinc-700"
-          >
-            {item.title}
-          </Link>
-        ))}
+      <div className="grid md:grid-cols-2 gap-5">
+        <Link href="/decks/new">
+          <Card>
+            <CardTitle>Create Deck</CardTitle>
+            <CardDesc>Build flashcard sets instantly</CardDesc>
+          </Card>
+        </Link>
+
+        <Link href="/decks">
+          <Card>
+            <CardTitle>My Decks</CardTitle>
+            <CardDesc>Manage your learning content</CardDesc>
+          </Card>
+        </Link>
+
+        <Link href="/rooms/create">
+          <Card>
+            <CardTitle>Live Room</CardTitle>
+            <CardDesc>1-on-1 real-time sessions</CardDesc>
+          </Card>
+        </Link>
+
+        <Link href="/solo">
+          <Card>
+            <CardTitle>Solo Practice</CardTitle>
+            <CardDesc>Self-paced learning mode</CardDesc>
+          </Card>
+        </Link>
       </div>
-    </main>
+    </Page>
   );
 }
