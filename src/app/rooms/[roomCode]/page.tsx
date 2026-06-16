@@ -1,206 +1,213 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { supabase } from "@/lib/supabase";
+
+import {
+  getRoomByCode,
+  setGuestReady,
+  revealAnswer,
+  updateCurrentCard,
+} from "@/lib/rooms";
+
+import { getDeckCards } from "@/lib/cards";
 
 export default function RoomPage() {
-  const params = useParams();
+  const { roomCode } = useParams();
+  const { user } = useUser();
 
-  const roomCode =
-    params.roomCode as string;
+  const [room, setRoom] = useState<any>(null);
+  const [cards, setCards] = useState<any[]>([]);
+  const [isHost, setIsHost] = useState(false);
 
-  const [isHost, setIsHost] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [ready, setReady] =
-    useState(false);
+  // ---------- LOAD ROOM ----------
+  async function loadRoom() {
+    const { data: roomData } = await getRoomByCode(
+      roomCode as string
+    );
 
-  const [revealed, setRevealed] =
-    useState(false);
+    setRoom(roomData);
 
-  const [correct, setCorrect] =
-    useState(0);
+    if (!roomData) return;
 
-  const [wrong, setWrong] =
-    useState(0);
+    const { data: deckCards } = await getDeckCards(
+      roomData.deck_id
+    );
 
-  const sampleCard = {
-    question:
-      "What is the Capital of India?",
-    answer: "New Delhi",
-  };
+    setCards(deckCards || []);
 
-  function markCorrect() {
-    setCorrect((prev) => prev + 1);
+    setIsHost(roomData.host_id === user?.id);
 
-    setReady(false);
-    setRevealed(false);
+    setLoading(false);
   }
 
-  function markWrong() {
-    setWrong((prev) => prev + 1);
+  useEffect(() => {
+    if (!roomCode || !user) return;
 
-    setReady(false);
-    setRevealed(false);
+    loadRoom();
+  }, [roomCode, user]);
+
+  // ---------- REALTIME ----------
+  useEffect(() => {
+    if (!room?.id) return;
+
+    const channel = supabase
+      .channel(`room-${room.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rooms",
+          filter: `id=eq.${room.id}`,
+        },
+        (payload) => {
+          setRoom(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [room?.id]);
+
+  // ---------- ACTIONS ----------
+  async function handleReady() {
+    await setGuestReady(room.id, true);
+  }
+
+  async function handleReveal() {
+    await revealAnswer(room.id, true);
+  }
+
+  async function handleNext() {
+    await updateCurrentCard(
+      room.id,
+      room.current_card_index + 1
+    );
+  }
+
+  if (loading || !room) {
+    return (
+      <main className="min-h-screen bg-black text-white p-6">
+        Loading room...
+      </main>
+    );
+  }
+
+  const currentCard =
+    cards[room.current_card_index];
+
+  if (!currentCard) {
+    return (
+      <main className="min-h-screen bg-black text-white p-6">
+        Session Completed 🎉
+      </main>
+    );
   }
 
   return (
     <main className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">
-              Room {roomCode}
-            </h1>
-
-            <p className="text-zinc-500 mt-2">
-              FlashCard Live Session
-            </p>
-          </div>
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* HEADER */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">
+            Room: {room.code}
+          </h1>
 
           <button
-            onClick={() =>
-              setIsHost(!isHost)
-            }
-            className="rounded-xl border border-zinc-800 px-4 py-2"
+            onClick={() => setIsHost(!isHost)}
+            className="border border-zinc-700 px-3 py-1 rounded"
           >
-            {isHost
-              ? "Host View"
-              : "Student View"}
+            {isHost ? "Host" : "Student"}
           </button>
         </div>
 
-        {/* Score */}
+        {/* QUESTION */}
+        <div className="border border-zinc-800 p-6 rounded-xl">
+          <p className="text-zinc-400 mb-2">
+            Question
+          </p>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="rounded-2xl border border-green-900 bg-zinc-950 p-6">
-            <p className="text-zinc-500">
-              Correct
-            </p>
-
-            <h2 className="text-3xl font-bold text-green-400">
-              {correct}
-            </h2>
-          </div>
-
-          <div className="rounded-2xl border border-red-900 bg-zinc-950 p-6">
-            <p className="text-zinc-500">
-              Wrong
-            </p>
-
-            <h2 className="text-3xl font-bold text-red-400">
-              {wrong}
-            </h2>
-          </div>
+          <h2 className="text-2xl font-bold">
+            {currentCard.question}
+          </h2>
         </div>
 
-        {/* Card */}
+        {/* STUDENT VIEW */}
+        {!isHost && (
+          <div className="space-y-4">
+            {!room.guest_ready && (
+              <button
+                onClick={handleReady}
+                className="w-full bg-blue-600 p-3 rounded"
+              >
+                I'm Ready
+              </button>
+            )}
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
-          <div className="text-sm text-zinc-500 mb-4">
-            Question
+            {room.guest_ready && !room.revealed && (
+              <div className="text-zinc-400 text-center">
+                Waiting for host to reveal...
+              </div>
+            )}
+
+            {room.revealed && (
+              <div className="border border-zinc-800 p-4 rounded">
+                <p className="text-zinc-400">
+                  Answer
+                </p>
+                <h3 className="text-xl font-bold">
+                  {currentCard.answer}
+                </h3>
+              </div>
+            )}
           </div>
+        )}
 
-          <h2 className="text-3xl font-semibold mb-8">
-            {sampleCard.question}
-          </h2>
+        {/* HOST VIEW */}
+        {isHost && (
+          <div className="space-y-4">
+            <div className="text-zinc-400">
+              Student Ready:{" "}
+              {room.guest_ready ? "Yes" : "No"}
+            </div>
 
-          {/* Student */}
+            {!room.revealed && (
+              <button
+                onClick={handleReveal}
+                className="w-full bg-green-600 p-3 rounded"
+              >
+                Reveal Answer
+              </button>
+            )}
 
-          {!isHost && (
-            <>
-              {!ready && (
-                <button
-                  onClick={() =>
-                    setReady(true)
-                  }
-                  className="w-full rounded-xl border border-zinc-800 p-4"
-                >
-                  I'm Ready
-                </button>
-              )}
-
-              {ready && !revealed && (
-                <div className="rounded-xl border border-zinc-800 p-4 text-center text-zinc-400">
-                  Waiting for host to reveal
-                  answer...
-                </div>
-              )}
-
-              {revealed && (
-                <div className="rounded-xl border border-zinc-800 p-6 mt-4">
-                  <p className="text-zinc-500 mb-2">
-                    Correct Answer
+            {room.revealed && (
+              <>
+                <div className="border border-zinc-800 p-4 rounded">
+                  <p className="text-zinc-400">
+                    Answer
                   </p>
-
-                  <h3 className="text-2xl font-bold">
-                    {sampleCard.answer}
+                  <h3 className="text-xl font-bold">
+                    {currentCard.answer}
                   </h3>
                 </div>
-              )}
-            </>
-          )}
 
-          {/* Host */}
-
-          {isHost && (
-            <>
-              <div className="rounded-xl border border-zinc-800 p-4 mb-4">
-                Student Status:{" "}
-                <span className="font-medium">
-                  {ready
-                    ? "Ready"
-                    : "Thinking"}
-                </span>
-              </div>
-
-              {!revealed && (
                 <button
-                  onClick={() =>
-                    setRevealed(true)
-                  }
-                  className="w-full rounded-xl border border-zinc-800 p-4 mb-4"
+                  onClick={handleNext}
+                  className="w-full bg-blue-600 p-3 rounded"
                 >
-                  Reveal Answer
+                  Next Card
                 </button>
-              )}
-
-              {revealed && (
-                <>
-                  <div className="rounded-xl border border-zinc-800 p-6 mb-4">
-                    <p className="text-zinc-500 mb-2">
-                      Answer
-                    </p>
-
-                    <h3 className="text-2xl font-bold">
-                      {sampleCard.answer}
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={
-                        markCorrect
-                      }
-                      className="rounded-xl border border-green-900 p-4 text-green-400"
-                    >
-                      Correct
-                    </button>
-
-                    <button
-                      onClick={markWrong}
-                      className="rounded-xl border border-red-900 p-4 text-red-400"
-                    >
-                      Wrong
-                    </button>
-                  </div>
-                </>
-              )}
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );
