@@ -2,40 +2,59 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth/auth";
 
 export default function SignupPage() {
-  const [name, setName] =
-    useState("");
+  const router = useRouter();
 
-  const [email, setEmail] =
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] =
     useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [confirmPassword,
-    setConfirmPassword] =
-    useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSignup() {
+    if (!name.trim()) {
+      alert("Full name required");
+      return;
+    }
+
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
-    const { error } = await signUp(
-      email,
-      password,
-      name
-    );
-
-    if (error) {
-      alert(error.message);
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters");
       return;
     }
 
-    alert("Account created");
+    try {
+      setLoading(true);
+
+      const { error } = await signUp(
+        email,
+        password,
+        name
+      );
+
+      if (error) {
+        alert(error.message);
+        setLoading(false);
+        return;
+      }
+
+      // small delay so Supabase session settles
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+    } catch (err: any) {
+      alert(err.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -47,18 +66,14 @@ export default function SignupPage() {
 
         <input
           value={name}
-          onChange={(e) =>
-            setName(e.target.value)
-          }
+          onChange={(e) => setName(e.target.value)}
           placeholder="Full Name"
           className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
         />
 
         <input
           value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
           className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
         />
@@ -76,9 +91,7 @@ export default function SignupPage() {
         <input
           value={confirmPassword}
           onChange={(e) =>
-            setConfirmPassword(
-              e.target.value
-            )
+            setConfirmPassword(e.target.value)
           }
           type="password"
           placeholder="Confirm Password"
@@ -87,13 +100,14 @@ export default function SignupPage() {
 
         <button
           onClick={handleSignup}
-          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 font-medium"
+          disabled={loading}
+          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3 font-medium disabled:opacity-50"
         >
-          Create Account
+          {loading ? "Creating account..." : "Create Account"}
         </button>
 
         <div className="mt-6 text-center text-sm text-zinc-500">
-          <Link href="/login">
+          <Link href="/login" className="hover:text-white">
             Already have an account?
           </Link>
         </div>
