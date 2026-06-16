@@ -6,7 +6,8 @@ import { useUser } from "@/hooks/useUser";
 import { getMyDecks } from "@/lib/decks";
 
 export default function CreateRoomPage() {
-  const user = useUser();
+  const { user, loading } =
+  useUser();
 
   const [decks, setDecks] =
     useState<any[]>([]);
