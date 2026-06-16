@@ -45,7 +45,7 @@ export default function ImportDeckPage() {
         .insert({
           title: deck.title,
           description: deck.description,
-          owner_id: user.id,
+          owner_id: user.user?.id
           is_public: false,
         })
         .select()
