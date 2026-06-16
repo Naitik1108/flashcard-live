@@ -5,15 +5,30 @@ export async function signUp(
   password: string,
   fullName: string
 ) {
-  return supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
+  const { data, error } =
+    await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
       },
-    },
+    });
+
+  if (error || !data.user) {
+    return { data, error };
+  }
+
+  // IMPORTANT: create profile row
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    email: email,
+    full_name: fullName,
+    created_at: new Date().toISOString(),
   });
+
+  return { data, error: null };
 }
 
 export async function signIn(
