@@ -13,7 +13,8 @@ type Deck = {
 };
 
 export default function DecksPage() {
-  const user = useUser();
+  const { user, loading } =
+  useUser();
 
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
