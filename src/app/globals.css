@@ -1,13 +1,11 @@
 :root {
-  --background: #000000;
-  --card: #111111;
-  --border: #222222;
-
-  --foreground: #ffffff;
-  --muted: #888888;
-
-  --success: #22c55e;
-  --danger: #ef4444;
+  --bg: #000000;
+  --panel: #0a0a0a;
+  --panel-2: #111111;
+  --border: #1f1f1f;
+  --text: #ffffff;
+  --muted: #9ca3af;
+  --accent: #ffffff;
 }
 
 * {
@@ -16,41 +14,24 @@
   padding: 0;
 }
 
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
 body {
-  min-height: 100%;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
+  background: radial-gradient(
+      circle at top,
+      rgba(255, 255, 255, 0.04),
+      transparent 40%
+    ),
+    var(--bg);
+
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
 }
 
-body {
-  overflow-x: hidden;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-}
-
-.text-muted {
-  color: var(--muted);
+/* subtle noise overlay for premium feel */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.05;
 }
