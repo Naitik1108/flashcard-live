@@ -27,14 +27,15 @@ export default function RoomPage() {
 
   const [room, setRoom] = useState<any>(null);
   const [cards, setCards] = useState<any[]>([]);
-  const [session, setSession] = useState({
-    correct_count: 0,
-    total_cards: 0,
-  });
   const [isHost, setIsHost] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
+const [session, setSession] = useState({
+    correct_count: 0,
+    total_cards: 0,
+  });
+  
   // ---------- LOAD ROOM ----------
   async function loadRoom() {
     const { data: roomData } = await getRoomByCode(
