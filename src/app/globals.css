@@ -1,37 +1,52 @@
 :root {
-  --bg: #000000;
-  --panel: #0a0a0a;
-  --panel-2: #111111;
-  --border: #1f1f1f;
+  --bg: #050505;
+  --card: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.1);
   --text: #ffffff;
-  --muted: #9ca3af;
-  --accent: #ffffff;
+  --muted: rgba(255, 255, 255, 0.6);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* GLOBAL */
 body {
-  background: radial-gradient(
-      circle at top,
-      rgba(255, 255, 255, 0.04),
-      transparent 40%
-    ),
-    var(--bg);
-
+  margin: 0;
+  background: var(--bg);
   color: var(--text);
   font-family: Inter, system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
-/* subtle noise overlay for premium feel */
-body::before {
-  content: "";
+/* ✨ animated gradient blobs */
+.bg-blur {
   position: fixed;
   inset: 0;
-  pointer-events: none;
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  opacity: 0.05;
+  z-index: -1;
+}
+
+.blob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  filter: blur(120px);
+  opacity: 0.35;
+  border-radius: 50%;
+}
+
+.blob1 {
+  background: #7c3aed;
+  top: -100px;
+  left: -100px;
+}
+
+.blob2 {
+  background: #06b6d4;
+  bottom: -150px;
+  right: -100px;
+}
+
+/* glass card */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
 }
