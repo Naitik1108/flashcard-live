@@ -2,11 +2,17 @@ import { supabase } from "../supabase";
 
 export async function signUp(
   email: string,
-  password: string
+  password: string,
+  fullName: string
 ) {
   return supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        full_name: fullName,
+      },
+    },
   });
 }
 
@@ -30,4 +36,12 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   return user;
+}
+
+export async function getCurrentSession() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session;
 }
