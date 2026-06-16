@@ -1,32 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-
 import { getCurrentUser } from "@/lib/auth/auth";
 
 export function useUser() {
-  const [user, setUser] =
-    useState<User | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadUser() {
-      const currentUser =
-        await getCurrentUser();
-
-      setUser(currentUser);
-
+    getCurrentUser().then((u) => {
+      setUser(u);
       setLoading(false);
-    }
-
-    loadUser();
+    });
   }, []);
 
-  return {
-    user,
-    loading,
-  };
+  return { user, loading };
 }
