@@ -1,45 +1,48 @@
-"use client";
-
 import Link from "next/link";
-import { Page, Header, Card, CardTitle, CardDesc } from "@/components/ui";
 
 export default function DashboardPage() {
   return (
-    <Page>
-      <Header
-        title="FlashCard Live"
-        subtitle="1-on-1 real-time learning system"
-      />
+    <div className="space-y-8">
+      {/* header */}
+      <div className="glass p-6">
+        <h1 className="text-4xl font-semibold">
+          FlashCard Live
+        </h1>
+        <p className="text-white/60 mt-2">
+          Learn faster with spaced repetition + live rooms
+        </p>
+      </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <Link href="/decks/new">
-          <Card>
-            <CardTitle>Create Deck</CardTitle>
-            <CardDesc>Build flashcard sets instantly</CardDesc>
-          </Card>
+      {/* grid */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link href="/decks/new" className="glass p-6 hover:scale-[1.02] transition">
+          <h2 className="text-xl font-medium">Create Deck</h2>
+          <p className="text-white/60 text-sm mt-1">
+            Build flashcards
+          </p>
         </Link>
 
-        <Link href="/decks">
-          <Card>
-            <CardTitle>My Decks</CardTitle>
-            <CardDesc>Manage your learning content</CardDesc>
-          </Card>
+        <Link href="/decks" className="glass p-6 hover:scale-[1.02] transition">
+          <h2 className="text-xl font-medium">My Decks</h2>
+          <p className="text-white/60 text-sm mt-1">
+            View saved decks
+          </p>
         </Link>
 
-        <Link href="/rooms/create">
-          <Card>
-            <CardTitle>Live Room</CardTitle>
-            <CardDesc>1-on-1 real-time sessions</CardDesc>
-          </Card>
+        <Link href="/rooms/create" className="glass p-6 hover:scale-[1.02] transition">
+          <h2 className="text-xl font-medium">Live Room</h2>
+          <p className="text-white/60 text-sm mt-1">
+            1v1 flashcard battle
+          </p>
         </Link>
 
-        <Link href="/solo">
-          <Card>
-            <CardTitle>Solo Practice</CardTitle>
-            <CardDesc>Self-paced learning mode</CardDesc>
-          </Card>
+        <Link href="/public-decks" className="glass p-6 hover:scale-[1.02] transition">
+          <h2 className="text-xl font-medium">Explore</h2>
+          <p className="text-white/60 text-sm mt-1">
+            Public decks library
+          </p>
         </Link>
       </div>
-    </Page>
+    </div>
   );
 }
