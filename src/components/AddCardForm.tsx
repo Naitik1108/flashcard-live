@@ -18,13 +18,30 @@ export default function AddCardForm({
   const [answer, setAnswer] =
     useState("");
 
+  const [loading, setLoading] =
+    useState(false);
+
   async function saveCard() {
+    if (!question.trim()) {
+      alert("Question is required");
+      return;
+    }
+
+    if (!answer.trim()) {
+      alert("Answer is required");
+      return;
+    }
+
+    setLoading(true);
+
     const { error } =
       await createCard(
         deckId,
         question,
         answer
       );
+
+    setLoading(false);
 
     if (error) {
       alert(error.message);
@@ -38,14 +55,18 @@ export default function AddCardForm({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+      <h2 className="text-xl font-semibold mb-4">
+        Add Card
+      </h2>
+
       <input
         value={question}
         onChange={(e) =>
           setQuestion(e.target.value)
         }
         placeholder="Question"
-        className="w-full p-3 rounded bg-zinc-900"
+        className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
       />
 
       <textarea
@@ -54,14 +75,18 @@ export default function AddCardForm({
           setAnswer(e.target.value)
         }
         placeholder="Answer"
-        className="w-full p-3 rounded bg-zinc-900"
+        className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
+        rows={4}
       />
 
       <button
         onClick={saveCard}
-        className="bg-blue-500 px-4 py-2 rounded"
+        disabled={loading}
+        className="rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-3 disabled:opacity-50"
       >
-        Add Card
+        {loading
+          ? "Adding..."
+          : "Add Card"}
       </button>
     </div>
   );
