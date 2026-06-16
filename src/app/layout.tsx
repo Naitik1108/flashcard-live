@@ -1,10 +1,32 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "FlashCard Live",
-  description: "Realtime flashcards for CA students",
+  description: "Premium real-time flashcard learning platform",
+
   manifest: "/manifest.json",
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black",
+    title: "FlashCard Live",
+  },
+
+  icons: {
+    apple: "/apple-touch-icon.png",
+    icon: "/icon-192.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -14,7 +36,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.variable}>
+        {children}
+      </body>
     </html>
   );
 }
