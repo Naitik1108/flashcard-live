@@ -2,66 +2,55 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getRoomByCode, joinRoom } from "@/lib/rooms";
+import { useUser } from "@/hooks/useUser";
 
 export default function JoinRoomPage() {
   const router = useRouter();
+  const { user } = useUser();
 
-  const [roomCode, setRoomCode] =
-    useState("");
+  const [code, setCode] = useState("");
 
-  const [name, setName] =
-    useState("");
+  async function handleJoin() {
+    if (!user) return;
 
-  function joinRoom() {
-    if (!roomCode.trim()) {
+    if (!code) {
       alert("Enter room code");
       return;
     }
 
-    if (!name.trim()) {
-      alert("Enter your name");
+    const { data: room, error } =
+      await getRoomByCode(code);
+
+    if (error || !room) {
+      alert("Room not found");
       return;
     }
 
-    router.push(
-      `/rooms/${roomCode.toUpperCase()}`
-    );
+    await joinRoom(room.id, user.id);
+
+    router.push(`/rooms/${room.code}`);
   }
 
   return (
     <main className="min-h-screen bg-black text-white p-6">
-      <div className="max-w-md mx-auto">
-        <h1 className="text-4xl font-bold mb-8">
-          Join Room
-        </h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Join Room
+      </h1>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <input
-            value={name}
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-            placeholder="Your Name"
-            className="w-full mb-4 rounded-xl border border-zinc-800 bg-black p-3"
-          />
+      <input
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
+        placeholder="Enter Room Code"
+        className="w-full p-3 rounded bg-zinc-900 mb-4"
+      />
 
-          <input
-            value={roomCode}
-            onChange={(e) =>
-              setRoomCode(e.target.value)
-            }
-            placeholder="Room Code"
-            className="w-full mb-6 rounded-xl border border-zinc-800 bg-black p-3"
-          />
-
-          <button
-            onClick={joinRoom}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 p-3"
-          >
-            Join Room
-          </button>
-        </div>
-      </div>
+      <button
+        onClick={handleJoin}
+        className="w-full bg-green-600 p-3 rounded"
+      >
+        Join
+      </button>
     </main>
   );
 }
