@@ -16,6 +16,14 @@ export default function DecksPage() {
   const { user, loading } =
   useUser();
 
+if (loading) {
+  return (
+    <main className="min-h-screen bg-black text-white p-6">
+      Loading...
+    </main>
+  );
+}
+
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
 
