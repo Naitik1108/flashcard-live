@@ -6,20 +6,18 @@ import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/lib/supabase";
 
 import {
+  getRoomByCode,
+  setGuestReady,
+} from "@/lib/rooms";
+
+import { getDeckCards } from "@/lib/cards";
+
+import {
   revealCard,
   nextCard,
   isSessionComplete,
   completeSession,
 } from "@/lib/sessionEngine";
-
-import {
-  getRoomByCode,
-  setGuestReady,
-  revealAnswer,
-  updateCurrentCard,
-} from "@/lib/rooms";
-
-import { getDeckCards } from "@/lib/cards";
 
 export default function RoomPage() {
   const { roomCode } = useParams();
@@ -31,24 +29,22 @@ export default function RoomPage() {
 
   const [loading, setLoading] = useState(true);
 
-const [session, setSession] = useState({
+  const [session, setSession] = useState({
     correct_count: 0,
     total_cards: 0,
   });
-  
+
   // ---------- LOAD ROOM ----------
   async function loadRoom() {
-    const { data: roomData } = await getRoomByCode(
-      roomCode as string
-    );
-
-    setRoom(roomData);
+    const { data: roomData } =
+      await getRoomByCode(roomCode as string);
 
     if (!roomData) return;
 
-    const { data: deckCards } = await getDeckCards(
-      roomData.deck_id
-    );
+    setRoom(roomData);
+
+    const { data: deckCards } =
+      await getDeckCards(roomData.deck_id);
 
     setCards(deckCards || []);
 
@@ -94,16 +90,47 @@ const [session, setSession] = useState({
   }
 
   async function handleReveal() {
-    await revealAnswer(room.id, true);
+    await revealCard(room.id);
   }
 
   async function handleNext() {
-    await updateCurrentCard(
-      room.id,
-      room.current_card_index + 1
+    const complete = isSessionComplete(
+      room,
+      cards
     );
+
+    if (complete) {
+      const result = await completeSession(
+        room,
+        session
+      );
+
+      alert(
+        `Session Complete! Accuracy: ${result.accuracy}%`
+      );
+
+      return;
+    }
+
+    await nextCard(room, cards);
   }
 
+  function markCorrect() {
+    setSession((prev) => ({
+      ...prev,
+      correct_count: prev.correct_count + 1,
+      total_cards: prev.total_cards + 1,
+    }));
+  }
+
+  function markWrong() {
+    setSession((prev) => ({
+      ...prev,
+      total_cards: prev.total_cards + 1,
+    }));
+  }
+
+  // ---------- UI STATES ----------
   if (loading || !room) {
     return (
       <main className="min-h-screen bg-black text-white p-6">
@@ -126,18 +153,16 @@ const [session, setSession] = useState({
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto space-y-6">
+
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">
             Room: {room.code}
           </h1>
 
-          <button
-            onClick={() => setIsHost(!isHost)}
-            className="border border-zinc-700 px-3 py-1 rounded"
-          >
+          <div className="text-zinc-400">
             {isHost ? "Host" : "Student"}
-          </button>
+          </div>
         </div>
 
         {/* QUESTION */}
@@ -163,11 +188,12 @@ const [session, setSession] = useState({
               </button>
             )}
 
-            {room.guest_ready && !room.revealed && (
-              <div className="text-zinc-400 text-center">
-                Waiting for host to reveal...
-              </div>
-            )}
+            {room.guest_ready &&
+              !room.revealed && (
+                <div className="text-zinc-400 text-center">
+                  Waiting for host to reveal...
+                </div>
+              )}
 
             {room.revealed && (
               <div className="border border-zinc-800 p-4 rounded">
@@ -185,6 +211,7 @@ const [session, setSession] = useState({
         {/* HOST VIEW */}
         {isHost && (
           <div className="space-y-4">
+
             <div className="text-zinc-400">
               Student Ready:{" "}
               {room.guest_ready ? "Yes" : "No"}
@@ -208,6 +235,22 @@ const [session, setSession] = useState({
                   <h3 className="text-xl font-bold">
                     {currentCard.answer}
                   </h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={markCorrect}
+                    className="bg-green-600 p-3 rounded"
+                  >
+                    Correct
+                  </button>
+
+                  <button
+                    onClick={markWrong}
+                    className="bg-red-600 p-3 rounded"
+                  >
+                    Wrong
+                  </button>
                 </div>
 
                 <button
