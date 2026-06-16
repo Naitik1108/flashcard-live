@@ -1,6 +1,33 @@
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const items = [
+    {
+      title: "Create Deck",
+      href: "/decks/new",
+    },
+    {
+      title: "Created Decks",
+      href: "/decks",
+    },
+    {
+      title: "Room",
+      href: "/rooms/create",
+    },
+    {
+      title: "Solo Practice",
+      href: "/solo",
+    },
+    {
+      title: "Profile",
+      href: "/profile",
+    },
+    {
+      title: "History",
+      href: "/history",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <h1 className="text-4xl font-bold mb-8">
@@ -8,33 +35,15 @@ export default function DashboardPage() {
       </h1>
 
       <div className="grid gap-4">
-        <Link
-          href="/decks/new"
-          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
-        >
-          Create Deck
-        </Link>
-
-        <Link
-          href="/decks"
-          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
-        >
-          My Decks
-        </Link>
-
-        <Link
-          href="/public-decks"
-          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
-        >
-          Public Decks
-        </Link>
-
-        <Link
-          href="/history"
-          className="p-4 rounded-xl border border-zinc-800 hover:border-blue-500"
-        >
-          Study History
-        </Link>
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 transition hover:border-zinc-700"
+          >
+            {item.title}
+          </Link>
+        ))}
       </div>
     </main>
   );
